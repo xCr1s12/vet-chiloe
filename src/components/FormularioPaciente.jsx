@@ -74,8 +74,8 @@ const FormularioPaciente = ({ onSubmit }) => {
                         required
                     >
                         <option value="" disabled>Selecciona una especie</option>
-                        <option value="perro">perro</option>
-                        <option value="gato">gato</option>
+                        <option value="canino">canino</option>
+                        <option value="felino">felino</option>
                     </select>
                 </label>
 

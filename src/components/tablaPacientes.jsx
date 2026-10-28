@@ -36,7 +36,13 @@ const TablaPacientes = ({ pacientes }) => {
           </tr>
         </thead>
         <tbody>
-          {pacientes.map((paciente, index) => (
+          {pacientes.length === 0 ? (
+            <tr>
+              <td className="px-4 py-8 text-center text-[#CFCFCF]" colSpan={7}>
+                No se encontro el paciente o especie.
+              </td>
+            </tr>
+          ) : pacientes.map((paciente, index) => (
             <tr
               key={paciente.id ?? `${paciente.numero_atencion}-${index}`}
               className="border-b border-[#4A4A4A]"
