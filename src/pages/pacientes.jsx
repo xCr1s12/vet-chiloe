@@ -3,81 +3,107 @@ import GradientBorderButton from "../components/ui/GradientButton";
 import FormularioPaciente from "../components/FormularioPaciente";
 import Modal from "../components/ui/Modal";
 import TablaPacientes from "../components/tablaPacientes";
+import BuscadorPaciente from "../components/BuscadorPaciente";
 
 export default function Pacientes() {
-    const [isOpen, setIsOpen] = useState(false);
-    const [pacientes, setPacientes] = useState([]);
-    const [cargando, setCargando] = useState(true);
-    const [errorCarga, setErrorCarga] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const [pacientes, setPacientes] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [errorCarga, setErrorCarga] = useState("");
+  const [busqueda, setBusqueda] = useState("");
 
-    useEffect(() => {
-        let activo = true;
+  const Filtrados = pacientes.filter((p) =>
+    ` ${p.nombre} ${p.especie}`.toLowerCase().includes(busqueda.toLowerCase()),
+  );
 
-        async function cargarPacientes() {
-            try {
-                const respuesta = await fetch("/api/pacientes");
-                if (!respuesta.ok) {
-                    throw new Error(`No se pudieron cargar los pacientes (${respuesta.status})`);
-                }
+  useEffect(() => {
+    let activo = true;
 
-                const datos = await respuesta.json();
-                if (!Array.isArray(datos)) {
-                    throw new Error("La respuesta del servidor no contiene una lista de pacientes");
-                }
-
-                if (activo) setPacientes(datos);
-            } catch (error) {
-                if (activo) setErrorCarga(error.message);
-            } finally {
-                if (activo) setCargando(false);
-            }
-        }
-
-        cargarPacientes();
-        return () => {
-            activo = false;
-        };
-    }, []);
-
-    async function agregarPaciente(nuevoPaciente) {
-        const respuesta = await fetch("/api/pacientes", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(nuevoPaciente),
-        });
-        const pacienteCreado = await respuesta.json();
-
+    async function cargarPacientes() {
+      try {
+        const respuesta = await fetch("/api/pacientes");
         if (!respuesta.ok) {
-            throw new Error(pacienteCreado.error || `No se pudo registrar el paciente (${respuesta.status})`);
+          throw new Error(
+            `No se pudieron cargar los pacientes (${respuesta.status})`,
+          );
         }
 
-        setPacientes((listaActual) => [...listaActual, pacienteCreado]);
-        setIsOpen(false);
+        const datos = await respuesta.json();
+        if (!Array.isArray(datos)) {
+          throw new Error(
+            "La respuesta del servidor no contiene una lista de pacientes",
+          );
+        }
+
+        if (activo) setPacientes(datos);
+      } catch (error) {
+        if (activo) setErrorCarga(error.message);
+      } finally {
+        if (activo) setCargando(false);
+      }
     }
 
-    return (
-        <main className="flex flex-col h-full max-h-screen items-center p-6 gap-6">
-            {cargando && <p className="text-white">Cargando pacientes...</p>}
-            {errorCarga && <p role="alert" className="text-red-400">{errorCarga}</p>}
-            <TablaPacientes pacientes={pacientes} />
+    cargarPacientes();
+    return () => {
+      activo = false;
+    };
+  }, []);
 
-        <div id="container-button" className="fixed bottom-6 right-6 z-10"> 
-            <GradientBorderButton
-                onPress={() => setIsOpen(true)}
-                type="action"
-                buttonText="Ingresar Pacientes"
-            />
-        </div>
+  async function agregarPaciente(nuevoPaciente) {
+    const respuesta = await fetch("/api/pacientes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(nuevoPaciente),
+    });
+    const pacienteCreado = await respuesta.json();
 
-            <Modal
-                isOpen={isOpen}
-                onClose={() => setIsOpen(false)}
-                className="m-auto border-0 bg-transparent p-0 backdrop:bg-black/60"
-            >
-                <FormularioPaciente
-                    onSubmit={agregarPaciente}
-                />
-            </Modal>
-        </main>
-    );
+    if (!respuesta.ok) {
+      throw new Error(
+        pacienteCreado.error ||
+          `No se pudo registrar el paciente (${respuesta.status})`,
+      );
+    }
+
+    setPacientes((listaActual) => [...listaActual, pacienteCreado]);
+    setIsOpen(false);
+  }
+
+  return (
+    <main className="flex flex-col h-full max-h-screen items-center p-6 gap-6">
+      {cargando && <p className="text-white">Cargando pacientes...</p>}
+      {errorCarga && (
+        <p role="alert" className="text-red-400">
+          {errorCarga}
+        </p>
+      )}
+      <div className="flex w-full items-center justify-end gap-2 px-4 sm:px-8">
+        <BuscadorPaciente
+          className="flex w-full max-w-sm items-center rounded-2xl border-2 px-4"
+          texto={busqueda}
+          onChange={setBusqueda}
+        />
+        <p>
+          {Filtrados.length} de {pacientes.length}
+        </p>
+      </div>
+
+      <TablaPacientes pacientes={Filtrados} />
+
+      <div id="container-button" className="fixed bottom-6 right-6 z-10">
+        <GradientBorderButton
+          onPress={() => setIsOpen(true)}
+          type="action"
+          buttonText="Ingresar Pacientes"
+        />
+      </div>
+
+      <Modal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        className="m-auto border-0 bg-transparent p-0 backdrop:bg-black/60"
+      >
+        <FormularioPaciente onSubmit={agregarPaciente} />
+      </Modal>
+    </main>
+  );
 }
