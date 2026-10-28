@@ -13,10 +13,16 @@ export async function getData() {
 }
 
 export async function insertData(paciente) {
-  const placeholders = camposInsert.map((_, i) => `$${i + 1}`).join(', ');
+  const valoresInsert = camposInsert.map((_, i) => `$${i + 1}`);
+  valoresInsert.splice(1, 0, 'generar_numero_atencion()');
+  const columnasInsert = [
+    camposInsert[0],
+    'numero_atencion',
+    ...camposInsert.slice(1),
+  ];
   const { rows } = await pool.query(
-    `INSERT INTO pacientes (${camposInsert.join(', ')})
-     VALUES (${placeholders})
+    `INSERT INTO pacientes (${columnasInsert.join(', ')})
+     VALUES (${valoresInsert.join(', ')})
      RETURNING ${columnas}`,
     camposInsert.map((campo) => paciente[campo]),
   );

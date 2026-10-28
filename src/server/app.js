@@ -15,3 +15,4 @@ app.use('/api/pacientes', pacientesRoutes);
 app.use('/api/buscar', buscarRoutes);
 
 export default app;
+
