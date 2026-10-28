@@ -7,3 +7,5 @@ export async function Buscar({text}) {
     ) 
     return resultado.rows;
 }
+
+
