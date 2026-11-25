@@ -26,6 +26,7 @@ function formatearEdad(edad) {
 }
 
 export const getDataPacientes = () => repo.getData();
+export const getPacientePorId = (id) => repo.getById(id);
 
 export async function insertDataPacientes(datos) {
   for (const campo of CAMPOS) {

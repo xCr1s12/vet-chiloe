@@ -1,4 +1,8 @@
-import { getDataPacientes,insertDataPacientes } from "../service/server/pacientes.service.js";
+import {
+    getDataPacientes,
+    getPacientePorId,
+    insertDataPacientes,
+} from "../service/server/pacientes.service.js";
 
 
 export async function getPacientes(req, res) {
@@ -11,6 +15,24 @@ export async function getPacientes(req, res) {
         res.status(500).json({error: err.message})
     }
 }
+
+export async function getPacientePorIdController(req, res) {
+    const id = Number(req.params.id);
+    if (!Number.isSafeInteger(id) || id < 1) {
+        return res.status(400).json({ error: 'El id debe ser un entero positivo' });
+    }
+
+    try {
+        const paciente = await getPacientePorId(id);
+        if (!paciente) {
+            return res.status(404).json({ error: 'Paciente no encontrado' });
+        }
+        return res.status(200).json(paciente);
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+}
+
 export async function postPaciente (req, res) {
     try {
         const nuevoPaciente = await insertDataPacientes(req.body);
@@ -22,4 +44,3 @@ export async function postPaciente (req, res) {
     }
 
 }
-

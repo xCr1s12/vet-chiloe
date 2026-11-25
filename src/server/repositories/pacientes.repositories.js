@@ -12,6 +12,14 @@ export async function getData() {
   return rows.map(normalizarPaciente);
 }
 
+export async function getById(id) {
+  const { rows } = await pool.query(
+    `SELECT ${columnas} FROM pacientes WHERE id = $1`,
+    [id],
+  );
+  return rows[0] ? normalizarPaciente(rows[0]) : null;
+}
+
 export async function insertData(paciente) {
   const placeholders = camposInsert.map((_, i) => `$${i + 1}`).join(', ');
   const { rows } = await pool.query(
